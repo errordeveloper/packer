@@ -70,7 +70,7 @@ func (d DigitalOceanClientV1) DestroyKey(id uint) error {
 }
 
 // Creates a droplet and returns it's id
-func (d DigitalOceanClientV1) CreateDroplet(name string, size string, image string, region string, keyId uint, privateNetworking bool) (uint, error) {
+func (d DigitalOceanClientV1) CreateDroplet(name string, size string, image string, region string, keyId uint, privateNetworking bool, userData string) (uint, error) {
 	params := url.Values{}
 	params.Set("name", name)
 

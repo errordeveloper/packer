@@ -54,9 +54,10 @@ type config struct {
 	DropletName       string `mapstructure:"droplet_name"`
 	SSHUsername       string `mapstructure:"ssh_username"`
 	SSHPort           uint   `mapstructure:"ssh_port"`
-
-	RawSSHTimeout   string `mapstructure:"ssh_timeout"`
-	RawStateTimeout string `mapstructure:"state_timeout"`
+	RawSSHTimeout     string `mapstructure:"ssh_timeout"`
+	RawStateTimeout   string `mapstructure:"state_timeout"`
+	UserData          string `mapstructure:"user_data"`
+	UserDataFile      string `mapstructure:"user_data_file"`
 
 	// These are unexported since they're set by other fields
 	// being set.
@@ -163,19 +164,29 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, error) {
 		b.config.RawStateTimeout = "6m"
 	}
 
+	if b.config.UserData != "" && b.config.UserDataFile != "" {
+		errs = append(errs, fmt.Errorf("Only one of user_data or user_data_file can be specified."))
+	} else if b.config.UserDataFile != "" {
+		if _, err := os.Stat(b.config.UserDataFile); err != nil {
+			errs = append(errs, fmt.Errorf("user_data_file not found: %s", b.config.UserDataFile))
+		}
+	}
+
 	templates := map[string]*string{
-		"region":        &b.config.Region,
-		"size":          &b.config.Size,
-		"image":         &b.config.Image,
-		"client_id":     &b.config.ClientID,
-		"api_key":       &b.config.APIKey,
-		"api_url":       &b.config.APIURL,
-		"api_token":     &b.config.APIToken,
-		"snapshot_name": &b.config.SnapshotName,
-		"droplet_name":  &b.config.DropletName,
-		"ssh_username":  &b.config.SSHUsername,
-		"ssh_timeout":   &b.config.RawSSHTimeout,
-		"state_timeout": &b.config.RawStateTimeout,
+		"region":         &b.config.Region,
+		"size":           &b.config.Size,
+		"image":          &b.config.Image,
+		"client_id":      &b.config.ClientID,
+		"api_key":        &b.config.APIKey,
+		"api_url":        &b.config.APIURL,
+		"api_token":      &b.config.APIToken,
+		"snapshot_name":  &b.config.SnapshotName,
+		"droplet_name":   &b.config.DropletName,
+		"ssh_username":   &b.config.SSHUsername,
+		"ssh_timeout":    &b.config.RawSSHTimeout,
+		"state_timeout":  &b.config.RawStateTimeout,
+		"user_data":      &b.config.UserData,
+		"user_data_file": &b.config.UserDataFile,
 	}
 
 	for n, ptr := range templates {

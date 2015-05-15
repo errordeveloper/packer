@@ -60,7 +60,7 @@ type ImagesResp struct {
 type DigitalOceanClient interface {
 	CreateKey(string, string) (uint, error)
 	DestroyKey(uint) error
-	CreateDroplet(string, string, string, string, uint, bool) (uint, error)
+	CreateDroplet(string, string, string, string, uint, bool, string) (uint, error)
 	DestroyDroplet(uint) error
 	PowerOffDroplet(uint) error
 	ShutdownDroplet(uint) error

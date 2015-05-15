@@ -71,7 +71,7 @@ func (d DigitalOceanClientV2) DestroyKey(id uint) error {
 }
 
 // Creates a droplet and returns it's id
-func (d DigitalOceanClientV2) CreateDroplet(name string, size string, image string, region string, keyId uint, privateNetworking bool) (uint, error) {
+func (d DigitalOceanClientV2) CreateDroplet(name string, size string, image string, region string, keyId uint, privateNetworking bool, userData string) (uint, error) {
 	type DropletReq struct {
 		Name              string   `json:"name"`
 		Region            string   `json:"region"`
@@ -81,6 +81,7 @@ func (d DigitalOceanClientV2) CreateDroplet(name string, size string, image stri
 		Backups           bool     `json:"backups,omitempty"`
 		IPv6              bool     `json:"ipv6,omitempty"`
 		PrivateNetworking bool     `json:"private_networking,omitempty"`
+		UserData          string   `json:"user_data,omitempty"`
 	}
 	type DropletRes struct {
 		Droplet struct {

@@ -2,6 +2,7 @@ package digitalocean
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"github.com/mitchellh/multistep"
 	"github.com/mitchellh/packer/packer"
@@ -17,10 +18,21 @@ func (s *stepCreateDroplet) Run(state multistep.StateBag) multistep.StepAction {
 	c := state.Get("config").(config)
 	sshKeyId := state.Get("ssh_key_id").(uint)
 
+	userData := c.UserData
+	if c.UserDataFile != "" {
+		contents, err := ioutil.ReadFile(c.UserDataFile)
+		if err != nil {
+			state.Put("error", fmt.Errorf("Problem reading user data file: %s", err))
+			return multistep.ActionHalt
+		}
+
+		userData = string(contents)
+	}
+
 	ui.Say("Creating droplet...")
 
 	// Create the droplet based on configuration
-	dropletId, err := client.CreateDroplet(c.DropletName, c.Size, c.Image, c.Region, sshKeyId, c.PrivateNetworking)
+	dropletId, err := client.CreateDroplet(c.DropletName, c.Size, c.Image, c.Region, sshKeyId, c.PrivateNetworking, userData)
 
 	if err != nil {
 		err := fmt.Errorf("Error creating droplet: %s", err)
